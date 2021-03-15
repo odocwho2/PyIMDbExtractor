@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from tkinter import *
+from tkinter import messagebox
 
 def extract():
     EpisodesScrap = []
@@ -24,6 +25,11 @@ def extract():
             except:
                 episodeTitle = "No episode Title"
             try:
+                episodeDescription = episode.find('div', class_='item_description').text.strip()
+            except:
+                episodeDescription = "No description"
+
+            try:
                 episodeAirDate = episode.find('div', class_='airdate').text.strip()
             except:
                 episodeAirDate = "1/1/1900"
@@ -31,12 +37,14 @@ def extract():
                 episodeRating = episode.find('span', class_='ipl-rating-star__rating').text
             except:
                 episodeRating = "0.00"
-            episodeData = [episodeSeason, episodeNumber, episodeTitle, episodeAirDate, episodeRating]
+            episodeData = [episodeSeason, episodeNumber, episodeTitle,episodeDescription, episodeAirDate, episodeRating]
             EpisodesScrap.append(episodeData)
-    EpisodesScrap = pd.DataFrame(EpisodesScrap,columns=['episodeSeason', 'episodeNumber', 'episodeTitle', 'episodeAirDate', 'episodeRating'])
+    EpisodesScrap = pd.DataFrame(EpisodesScrap,columns=['episodeSeason', 'episodeNumber', 'episodeTitle','episodeDescription', 'episodeAirDate', 'episodeRating'])
     EpisodesScrap['episodeRating'] = EpisodesScrap.episodeRating.astype(float)
     EpisodesScrap['episodeAirDate'] = pd.to_datetime(EpisodesScrap.episodeAirDate)
     EpisodesScrap.to_csv('SeriesExtract.csv', index=False)
+    messagebox.showinfo("Done Extracting","Data extraction finished!")
+
 # GUI
 GUI = Tk()
 GUI.title("IMDB Extractor")
